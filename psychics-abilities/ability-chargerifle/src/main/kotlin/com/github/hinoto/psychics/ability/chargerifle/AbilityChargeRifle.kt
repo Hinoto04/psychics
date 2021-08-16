@@ -12,11 +12,13 @@ import io.github.monun.tap.config.Name
 import io.github.monun.tap.trail.TrailSupport
 import net.kyori.adventure.text.Component
 import org.bukkit.*
+import org.bukkit.block.Block
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import org.bukkit.util.Vector
 
 @Name("charge-rifle")
 class ChargerifleConcept : AbilityConcept() {
@@ -56,11 +58,31 @@ class AbilityChargerifle : ActiveAbility<ChargerifleConcept>() {
         world.playSound(player.location, Sound.BLOCK_PORTAL_TRIGGER, 1.0f, 1.0f)
         val task = psychic.runTaskTimer(Runnable {
             val loc = player.eyeLocation
-            val hitLocation = loc.clone().add(loc.direction.clone().multiply(concept.range))
+            var hitLocation = loc.clone().add(loc.direction.clone().multiply(concept.range))
+
+            world.rayTrace(loc, loc.direction, concept.range, FluidCollisionMode.NEVER, true,
+            0.5, TargetFilter(esper.player))?.let { result ->
+                hitLocation = result.hitPosition.toLocation(world)
+            }
 
             TrailSupport.trail(loc, hitLocation, 0.4) { w, x, y, z ->
-                w.spawnParticle(Particle.REDSTONE, x, y, z, 1,
-                    0.0, 0.0, 0.0, 0.0, Particle.DustOptions(Color.RED, 0.2f))
+                w.spawnParticle(
+                    Particle.REDSTONE, x, y, z, 1,
+                    0.0, 0.0, 0.0, 0.0, Particle.DustOptions(Color.RED, 0.2f)
+                )
+            }
+            var blocks = listOf<Block>()
+            for (i : Int in -1..1) {
+                for (j : Int in -1..1) {
+                    for (k : Int in -1..1) {
+                        blocks = blocks.plus(hitLocation.clone().add(Vector(i, j, k)).block)
+                    }
+                }
+            }
+            for (block in blocks) {
+                if (block.type != Material.VOID_AIR && block.type != Material.BEDROCK) {
+                    block.type = Material.AIR
+                }
             }
         }, 0L, 1L)
         psychic.runTask(Runnable {
