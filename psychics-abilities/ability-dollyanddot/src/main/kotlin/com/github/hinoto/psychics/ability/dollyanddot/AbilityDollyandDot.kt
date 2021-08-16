@@ -105,6 +105,7 @@ class AbilityDollyanddot : ActiveAbility<DollyandDotConcept>() {
             task.cancel()
             dolly!!.remove()
             dot!!.remove()
+            projectile.remove()
         }, concept.durationTime/1000*20)
         Bukkit.broadcast(Component.text("돌리랑 도트가 제일 좋아"))
 
