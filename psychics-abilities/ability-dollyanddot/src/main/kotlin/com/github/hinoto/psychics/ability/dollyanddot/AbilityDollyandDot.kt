@@ -133,12 +133,12 @@ class AbilityDollyanddot : ActiveAbility<DollyandDotConcept>() {
             }
         }
         for(block in sandblocks) {
-            if(block.type != Material.VOID_AIR) {
+            if(block.type != Material.VOID_AIR && block.type != Material.BEDROCK) {
                 block.type = Material.SAND
             }
         }
         for(block in airblocks) {
-            if (block.type != Material.VOID_AIR) {
+            if (block.type != Material.VOID_AIR && block.type != Material.BEDROCK) {
                 block.type = Material.AIR
             }
         }
